@@ -22,7 +22,7 @@ void setup() {
   DigiKeyboard.sendKeyStroke(KEY_ENTER);
   DigiKeyboard.delay(1500);
 
-  DigiKeyboard.print("echo USB STORAGE AUDIT");
+  DigiKeyboard.print("echo USB-veryFIRE - HID-based System Security Auditor for Windows");
   DigiKeyboard.sendKeyStroke(KEY_ENTER);
 
   // Construindo o comando fatiado para usar os caracteres corretos
