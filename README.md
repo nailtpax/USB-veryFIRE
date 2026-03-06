@@ -32,4 +32,4 @@ Ao ser conectado, o dispositivo emula um teclado para abrir o console e executar
 Este projeto é destinado estritamente para fins de segurança defensiva e ofensiva ética. O uso em sistemas sem autorização é de inteira responsabilidade do usuário.
 
 ---
-**Desenvolvido por [Seu Nome/User] - Pentester Pleno**
+**Desenvolvido por nailtpax
