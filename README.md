@@ -1,4 +1,5 @@
 # 🛠️ USB-veryFIRE 
+![USB-veryFIRE Logo](img/USB-veryFIRE.png)
 **HID-based System Auditor for Windows Environments**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
