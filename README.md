@@ -1,56 +1,49 @@
-USB-veryFIRE 🛡️🔥
-HID-based System Auditor for Windows Environments
+🛡️ USB-veryFIRE
+HID-based System Security Auditor for Windows (Desktop, Server and OT)
 
-O USB-veryFIRE é uma ferramenta de auditoria rápida baseada em HID (Human Interface Device) desenvolvida para o hardware Digispark (ATtiny85). Ele permite que um auditor ou pentester colete informações críticas de configuração e segurança de forma automatizada, sem a necessidade de interação manual com periféricos do alvo.
+O USB-veryFIRE é um script para microcontroladores compatíveis com Digispark (ATtiny85) que atua como um dispositivo HID (Teclado). Seu objetivo é auditar de forma rápida e automatizada o status de bloqueio de armazenamento em massa (USB Mass Storage) em sistemas Windows, identificando se a máquina está vulnerável à exfiltração de dados ou infecção via pendrives.
 
-📖 Descrição
-Ao ser conectado, o dispositivo emula um teclado para abrir o Prompt de Comando (CMD) e executar uma varredura rápida de identificação do ativo e status das políticas de dispositivos removíveis. O objetivo principal é gerar uma evidência visual imediata na tela para registro fotográfico em avaliações de segurança física e conformidade (Compliance).
+🎯 Funcionalidades
+Auditoria Rápida: Executa a verificação do registro do Windows em poucos segundos via terminal (cmd).
 
-✨ Funcionalidades
-Compatibilidade Ampla: Suporte total a Windows 7, 10, 11 e Windows Server.
+Compatibilidade ABNT2: Utiliza mapeamento de teclas cruas (Raw HID codes) para injetar corretamente barras (\), pipes (|) e outros caracteres especiais em teclados com layout Português-Brasil (ABNT2).
 
-Auditoria de Compliance: Verifica o status do serviço USBSTOR diretamente no registro do Windows.
+Feedback Imediato: Retorna no próprio prompt de comando se a máquina auditada está VULNERÁVEL (armazenamento permitido) ou COMPLIANT (armazenamento bloqueado).
 
-Rastreabilidade: Consolida Hostname, Usuário e Timestamp em um único relatório visual.
+Coleta de Evidências: Imprime automaticamente o hostname, usuário atual (whoami), data e hora da execução da auditoria.
 
-Non-Intrusive: Operação baseada em comandos nativos (reg query), sem alteração de arquivos no disco.
+⚙️ Como Funciona
+O script simula o pressionamento de teclas (Win + R) para abrir o Prompt de Comando e injeta a seguinte consulta no registro do Windows:
 
-ABNT2 Layout Bypass: Implementação via Raw HID Scan Codes para evitar erros de digitação em teclados brasileiros (problemas com /, \ e :).
+DOS
+reg query HKLM\SYSTEM\CurrentControlSet\Services\USBSTOR /v Start
+Em seguida, o script avalia o retorno dessa chave:
 
-🖥️ Exemplo de Output (PoC)
-Ao conectar o dispositivo, o terminal exibirá o seguinte relatório:
+Se o valor for 0x3 (Manual/Habilitado), o script acusa a vulnerabilidade.
 
-Plaintext
-########################################################
-#                USB-veryFIRE AUDIT REPORT             #
-########################################################
+Caso contrário (geralmente 0x4 para Desabilitado), o sistema é considerado em conformidade (Compliant).
 
-[+] DATA/HORA: 08/03/2026 - 09:00
-[+] HOSTNAME:  WORKSTATION-01
-[+] USUARIO:   CORP\pente.tester
+🛠️ Requisitos
+Placa de desenvolvimento Digispark ATtiny85 (ou compatível).
 
---------------------------------------------------------
-[!] VERIFICANDO STATUS DO USB STORAGE (USBSTOR)
---------------------------------------------------------
+Arduino IDE configurada com o suporte às placas Digistump.
 
-HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\USBSTOR
-    Start    REG_DWORD    0x3
+Biblioteca DigiKeyboard.h (padrão no pacote Digistump).
 
---------------------------------------------------------
-[ANALISE DE COMPLIANCE]
-Status 0x3: USB Habilitado (Vulnerável)
-Status 0x4: USB Desabilitado (Seguro)
---------------------------------------------------------
+🚀 Instalação e Uso
+Abra a Arduino IDE.
 
-AUDITORIA CONCLUIDA. AGUARDANDO REGISTRO FOTOGRAFICO...
-🚀 Como Usar
-Build: Realize o upload do código .ino para o seu Digispark via Arduino IDE.
+Certifique-se de que a placa "Digispark (Default - 16.5mhz)" está selecionada em Ferramentas > Placa.
 
-Deploy: Conecte o dispositivo em uma porta USB de uma máquina Windows desbloqueada.
+Copie o código-fonte do USB-veryFIRE e cole na IDE.
 
-Execução: O dispositivo abrirá o CMD e digitará os comandos automaticamente.
+Clique em Upload.
 
-Registro: Capture a foto da evidência para o seu relatório final.
+Quando a IDE solicitar, conecte o Digispark à porta USB do seu computador.
 
-⚠️ Disclaimer
-Este projeto é destinado estritamente para fins de segurança defensiva e ofensiva ética. O uso em sistemas sem autorização explícita é ilegal e de inteira responsabilidade do usuário.
+Aguarde a mensagem de sucesso. O dispositivo está pronto para uso.
+
+Nota de Execução: Ao plugar o Digispark em uma máquina alvo, o script possui um delay inicial de 5 segundos (5000ms) para permitir o reconhecimento dos drivers do teclado pelo sistema operacional antes de iniciar a injeção.
+
+⚠️ Aviso Legal
+Este projeto foi desenvolvido estritamente para fins de Auditoria de Segurança e Testes de Invasão (Pentest) Autorizados. O uso desta ferramenta para acessar sistemas ou extrair informações sem o consentimento explícito do proprietário é ilegal. O autor não se responsabiliza pelo uso indevido ou por danos causados por este script.
