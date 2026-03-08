@@ -1,112 +1,142 @@
-# USB-veryFIRE
+# USB Storage Security Audit (Digispark)
 
-**HID-based System Auditor for Windows Environments**
+## Overview
 
-O **USB-veryFIRE** é uma ferramenta de auditoria rápida baseada em HID (Human Interface Device) desenvolvida para o hardware **Digispark (ATtiny85)**. Ele permite que um auditor ou pentester colete informações críticas de configuração e segurança de forma automatizada, sem a necessidade de interação manual com periféricos do alvo.
+This project demonstrates a simple USB security assessment technique using a Digispark ATtiny85 device configured as a USB HID keyboard.
 
-## 📖 Descrição
+When connected to a Windows machine, the device automatically executes a command that queries the system registry to determine whether USB mass storage devices are enabled or disabled.
 
-Ao ser conectado, o dispositivo emula um teclado para abrir o Prompt de Comando (CMD) e executar uma varredura rápida de identificação do ativo e status das políticas de dispositivos removíveis. O objetivo principal é gerar uma **evidência visual imediata** na tela para registro fotográfico em avaliações de segurança física e conformidade.
-
-## ✨ Funcionalidades
-
-* **Compatibilidade Ampla:** Funciona em Windows 7, 10, 11 e Windows Server.
-* **Auditoria de Compliance:** Verifica instantaneamente se o serviço de armazenamento USB (`USBSTOR`) está habilitado ou bloqueado via registro.
-* **Rastreabilidade de Evidência:** Exibe Hostname, Usuário logado e Timestamp exato na mesma tela para facilitar a documentação de Proof of Concept (PoC).
-* **Non-Intrusive:** Não altera arquivos ou configurações do sistema; utiliza apenas comandos de leitura nativos (`reg query`).
-* **ABNT2 Layout Bypass:** Código otimizado com *Raw HID Scan Codes* para contornar problemas de mapeamento de caracteres especiais (`\`, `/`, `:`) em teclados configurados no padrão brasileiro.
+The goal is to produce a clear technical evidence output that can be used during physical security assessments or penetration tests.
 
 ---
 
-## 🖥️ Exemplo de Output (PoC)
+## What the Script Checks
 
-Ao conectar o dispositivo em uma máquina alvo, o relatório gerado no terminal seguirá este modelo:
+The script queries the following Windows registry key:
 
-```text
-########################################################
-#                USB-veryFIRE AUDIT REPORT             #
-########################################################
+```
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\USBSTOR
+```
 
-[+] DATA/HORA: 08/03/2026 - 08:45
-[+] HOSTNAME:  WORKSTATION-01
-[+] USUARIO:   CORP\pente.tester
+Specifically the value:
 
---------------------------------------------------------
-[!] VERIFICANDO STATUS DO USB STORAGE (USBSTOR)
---------------------------------------------------------
+```
+Start
+```
+
+This value determines whether USB storage devices are allowed.
+
+| Value | Meaning              |
+| ----- | -------------------- |
+| 0x3   | USB storage enabled  |
+| 0x4   | USB storage disabled |
+
+---
+
+## Command Executed
+
+The Digispark injects the following command into the Windows command prompt:
+
+```
+reg query HKLM\SYSTEM\CurrentControlSet\Services\USBSTOR /v Start
+```
+
+This command prints the registry configuration responsible for USB storage support.
+
+---
+
+## Example Output
+
+```
+USB STORAGE AUDIT
 
 HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\USBSTOR
     Start    REG_DWORD    0x3
 
---------------------------------------------------------
-[ANALISE DE COMPLIANCE]
-Status 0x3: USB Habilitado (Vulnerável)
-Status 0x4: USB Desabilitado (Seguro)
---------------------------------------------------------
+Nitro5-NCP
+nitro5-ncp\nailt
+06/03/2026 20:01:26
+```
 
-AUDITORIA CONCLUIDA. AGUARDANDO REGISTRO FOTOGRAFICO...
+### Interpretation
 
-O Gemini disse
-Aqui está o código completo em formato Markdown (.md). Você pode copiar o conteúdo abaixo e colar diretamente no seu arquivo README.md no GitHub.
+If the output contains:
 
-Markdown
-# USB-veryFIRE 🛡️🔥
+```
+Start REG_DWORD 0x3
+```
 
-**HID-based System Auditor for Windows Environments**
+The device is considered:
 
-O **USB-veryFIRE** é uma ferramenta de auditoria rápida baseada em HID (Human Interface Device) desenvolvida para o hardware **Digispark (ATtiny85)**. Ele permite que um auditor ou pentester colete informações críticas de configuração e segurança de forma automatizada, sem a necessidade de interação manual com periféricos do alvo.
+```
+USB STORAGE ENABLED
+```
 
-## 📖 Descrição
-
-Ao ser conectado, o dispositivo emula um teclado para abrir o Prompt de Comando (CMD) e executar uma varredura rápida de identificação do ativo e status das políticas de dispositivos removíveis. O objetivo principal é gerar uma **evidência visual imediata** na tela para registro fotográfico em avaliações de segurança física e conformidade.
-
-## ✨ Funcionalidades
-
-* **Compatibilidade Ampla:** Funciona em Windows 7, 10, 11 e Windows Server.
-* **Auditoria de Compliance:** Verifica instantaneamente se o serviço de armazenamento USB (`USBSTOR`) está habilitado ou bloqueado via registro.
-* **Rastreabilidade de Evidência:** Exibe Hostname, Usuário logado e Timestamp exato na mesma tela para facilitar a documentação de Proof of Concept (PoC).
-* **Non-Intrusive:** Não altera arquivos ou configurações do sistema; utiliza apenas comandos de leitura nativos (`reg query`).
-* **ABNT2 Layout Bypass:** Código otimizado com *Raw HID Scan Codes* para contornar problemas de mapeamento de caracteres especiais (`\`, `/`, `:`) em teclados configurados no padrão brasileiro.
+Which means removable storage devices can be connected to the system.
 
 ---
 
-## 🖥️ Exemplo de Output (PoC)
+## Digispark Code
 
-Ao conectar o dispositivo em uma máquina alvo, o relatório gerado no terminal seguirá este modelo:
+```cpp
+#include "DigiKeyboard.h"
 
-```text
-########################################################
-#                USB-veryFIRE AUDIT REPORT             #
-########################################################
+void setup() {
 
-[+] DATA/HORA: 08/03/2026 - 08:45
-[+] HOSTNAME:  WORKSTATION-01
-[+] USUARIO:   CORP\pente.tester
+  DigiKeyboard.delay(5000);
 
---------------------------------------------------------
-[!] VERIFICANDO STATUS DO USB STORAGE (USBSTOR)
---------------------------------------------------------
+  DigiKeyboard.sendKeyStroke(KEY_R, MOD_GUI_LEFT);
+  DigiKeyboard.delay(800);
 
-HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\USBSTOR
-    Start    REG_DWORD    0x3
+  DigiKeyboard.print("cmd");
+  DigiKeyboard.sendKeyStroke(KEY_ENTER);
 
---------------------------------------------------------
-[ANALISE DE COMPLIANCE]
-Status 0x3: USB Habilitado (Vulnerável)
-Status 0x4: USB Desabilitado (Seguro)
---------------------------------------------------------
+  DigiKeyboard.delay(1500);
 
-AUDITORIA CONCLUIDA. AGUARDANDO REGISTRO FOTOGRAFICO...
-🚀 Como Usar
-Configuração: Realize o upload do código .ino para o seu Digispark utilizando a Arduino IDE (com suporte a ATtiny85 instalado).
+  DigiKeyboard.print("echo USB STORAGE AUDIT");
+  DigiKeyboard.sendKeyStroke(KEY_ENTER);
 
-Conexão: Conecte o Digispark em qualquer porta USB de uma máquina Windows desbloqueada.
+  DigiKeyboard.print("reg query HKLM\\SYSTEM\\CurrentControlSet\\Services\\USBSTOR /v Start");
+  DigiKeyboard.sendKeyStroke(KEY_ENTER);
 
-Execução: O script abrirá o Prompt de Comando (CMD) automaticamente e imprimirá o relatório de segurança na tela.
+  DigiKeyboard.print("hostname && whoami && echo %date% %time%");
+  DigiKeyboard.sendKeyStroke(KEY_ENTER);
+}
 
-Registro: Capture a foto da tela com a evidência gerada para compor seu relatório de Pentest ou Auditoria.
+void loop(){}
+```
 
-⚠️ Disclaimer
-Este projeto é destinado estritamente para fins de segurança defensiva e ofensiva ética. O uso em sistemas sem autorização explícita é ilegal e de inteira responsabilidade do usuário.
+---
 
-Desenvolvido por nailtpax
+## Use Cases
+
+This technique can be used during:
+
+* Physical penetration tests
+* Red team engagements
+* Security configuration audits
+* Removable media policy validation
+
+The output provides technical evidence showing whether the system allows USB storage devices.
+
+---
+
+## Security Implication
+
+If USB storage is enabled, attackers may:
+
+* Exfiltrate sensitive data
+* Introduce malware via removable media
+* Bypass network monitoring controls
+
+Organizations should consider enforcing removable media restrictions where appropriate.
+
+---
+
+## Disclaimer
+
+This project is intended only for authorized security testing, research, and educational purposes.
+
+Use only on systems where you have explicit permission to perform security assessments.
+
+Unauthorized use may violate organizational policies or applicable laws.
