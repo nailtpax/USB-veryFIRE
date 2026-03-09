@@ -1,8 +1,8 @@
 /*
- * Project: USB-veryFIRE
- * Description: HID-based System Security Auditor for Windows (Desktop, Server and OT)
- * Author: nailtpax (Pentester Pleno)
- * Target: Windows 7/10/11 / Windows Server
+ * Projeto: USB-veryFIRE
+ * Descrição: Auditor de Segurança de Sistema baseado em HID para Windows (Desktop, Servidor e OT)
+ * Autor: nailtpax 
+ * Alvo: Windows 7/10/11 / Windows Server
  */
 
 #include "DigiKeyboard.h"
@@ -21,10 +21,10 @@ void setup() {
   DigiKeyboard.sendKeyStroke(KEY_ENTER);
   DigiKeyboard.delay(1500);
 
-  DigiKeyboard.print("echo Running USB-veryFIRE...");
+  DigiKeyboard.print("echo Executando USB-veryFIRE...");
   DigiKeyboard.sendKeyStroke(KEY_ENTER);
 
-  // Building the registry query with raw HID codes for the slashes
+  // Construindo a consulta de registro com códigos HID brutos para as barras invertidas
   DigiKeyboard.print("reg query HKLM");
   DigiKeyboard.sendKeyStroke(KEY_BACKSLASH_ABNT2);
   DigiKeyboard.print("SYSTEM");
@@ -38,23 +38,23 @@ void setup() {
   DigiKeyboard.sendKeyStroke(KEY_SLASH_NUMPAD); 
   DigiKeyboard.print("v Start ");
 
-  // 1. Inject Pipe (|) -> Shift + \ in ABNT2
+  // 1. Injetando o Pipe (|) -> Shift + \ no layout ABNT2
   DigiKeyboard.sendKeyStroke(KEY_BACKSLASH_ABNT2, MOD_SHIFT_LEFT);
   DigiKeyboard.print(" findstr 0x3 ");
 
-  // 2. AND operator (&&) + Safe characters (! and -)
+  // 2. Operador AND (&&) + caracteres seguros (! e -)
   DigiKeyboard.print("&& echo !!! VULNERAVEL - Mass Storage PERMITIDO !!! ");
 
-  // 3. OR operator (||) -> Inject two pipes
+  // 3. Operador OR (||) -> Injetando dois pipes
   DigiKeyboard.sendKeyStroke(KEY_BACKSLASH_ABNT2, MOD_SHIFT_LEFT);
   DigiKeyboard.sendKeyStroke(KEY_BACKSLASH_ABNT2, MOD_SHIFT_LEFT);
   
-  // Safe characters (* and -)
+  // Caracteres seguros (* e -)
   DigiKeyboard.print(" echo *** COMPLIANT - Mass Storage BLOQUEADO ***");
 
   DigiKeyboard.sendKeyStroke(KEY_ENTER);
 
-  // The % sign works natively because Shift+5 is universal
+  // O sinal de % funciona nativamente pois Shift+5 é universal
   DigiKeyboard.print("hostname && whoami && echo %date% %time%");
   DigiKeyboard.sendKeyStroke(KEY_ENTER);
 }
